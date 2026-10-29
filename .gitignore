@@ -1,0 +1,14 @@
+# 実行時に作られるもの（アカウント情報・保存データ）。公開しない
+users.db
+projects/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
