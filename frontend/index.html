@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KanFlow — ログイン</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 背景の光源 */
+    .bg-glow {
+      position: fixed;
+      pointer-events: none;
+    }
+    .bg-glow-1 {
+      top: -10%; left: -10%;
+      width: 55vw; height: 55vw;
+      background: radial-gradient(circle, rgba(24,168,220,0.08) 0%, transparent 65%);
+    }
+    .bg-glow-2 {
+      bottom: -15%; right: -5%;
+      width: 40vw; height: 40vw;
+      background: radial-gradient(circle, rgba(24,168,220,0.05) 0%, transparent 65%);
+    }
+
+    /* ログインカード */
+    .login-wrapper {
+      display: flex;
+      gap: 0;
+      width: min(820px, 94vw);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(24,168,220,0.15);
+      animation: fadeUp 0.5s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* 左パネル（ブランディング） */
+    .login-brand {
+      flex: 1;
+      background: linear-gradient(145deg, #0D1F3C 0%, #0A1628 50%, #071020 100%);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid rgba(24,168,220,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 左パネルの装飾ライン */
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    /* 六角形の背景装飾 */
+    .login-brand::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: -60px;
+      width: 240px; height: 240px;
+      background: rgba(24,168,220,0.04);
+      clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    }
+
+    .brand-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo::before {
+      content: '';
+      width: 24px; height: 24px;
+      background: var(--accent);
+      clip-path: polygon(0 25%, 50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%);
+      flex-shrink: 0;
+    }
+    .brand-logo span { color: var(--text); }
+
+    .brand-tagline {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 32px 0;
+    }
+
+    .brand-tagline h2 {
+      font-size: 1.5rem;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .brand-tagline p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .brand-features {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .brand-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .brand-feature-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* 右パネル（フォーム） */
+    .login-form-panel {
+      width: 340px;
+      background: var(--surface);
+      padding: 48px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .login-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .login-subtitle {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      font-size: 0.9rem;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 0.78rem;
+      margin-top: 8px;
+      display: none;
+      text-align: center;
+    }
+
+    .login-hint {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--muted);
+      padding: 10px;
+      background: rgba(24,168,220,0.05);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .powered-by {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.72rem;
+      color: rgba(90,120,150,0.5);
+    }
+
+    .tab-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      margin-bottom: -1px;
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-btn:hover { color: var(--accent); }
+
+    @media (max-width: 600px) {
+      .login-brand { display: none; }
+      .login-form-panel { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="login-wrapper">
+    <!-- 左：ブランドパネル -->
+    <div class="login-brand">
+      <div class="brand-logo">Kan<span>Flow</span></div>
+
+      <div class="brand-tagline">
+        <h2>チームの進捗を<br>リアルタイムで共有</h2>
+        <p>タスクの状態をドラッグ&ドロップで更新するだけで、<br>接続中の全メンバーに即座に反映されます。</p>
+      </div>
+
+      <div class="brand-features">
+        <div class="brand-feature">
+          <div class="brand-feature-dot"></div>
+          <span>リアルタイム同期 — WebSocketで即時反映</span>
+        </div>
+        <div class="brand-feature">
+          <div class="brand-feature-dot"></div>
+          <span>かんばんボード — 直感的なタスク管理</span>
+        </div>
+        <div class="brand-feature">
+          <div class="brand-feature-dot"></div>
+          <span>ホワイトボード — 付箋と手書きで共同作業</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右：フォームパネル -->
+    <div class="login-form-panel">
+      <!-- タブ -->
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">ログイン</button>
+        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">新規登録</button>
+      </div>
+
+      <!-- ログインフォーム -->
+      <div id="form-login">
+        <div class="form-group">
+          <label class="form-label" for="username">ユーザー名</label>
+          <input class="input" type="text" id="username" placeholder="例: maeda" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">パスワード</label>
+          <input class="input" type="password" id="password" placeholder="パスワードを入力" autocomplete="current-password">
+        </div>
+        <p class="error-msg" id="error-msg"></p>
+        <button class="btn btn-primary btn-login" onclick="login()">ログイン →</button>
+      </div>
+
+      <!-- 新規登録フォーム -->
+      <div id="form-register" style="display:none">
+        <div class="form-group">
+          <label class="form-label" for="reg-username">ユーザー名</label>
+          <input class="input" type="text" id="reg-username" placeholder="2〜20文字（英数字・日本語）" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">パスワード</label>
+          <input class="input" type="password" id="reg-password" placeholder="4文字以上" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password2">パスワード（確認）</label>
+          <input class="input" type="password" id="reg-password2" placeholder="もう一度入力" autocomplete="new-password">
+        </div>
+        <p class="error-msg" id="error-reg"></p>
+        <button class="btn btn-primary btn-login" onclick="register()">登録 →</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script>
+    const API_BASE = '';  // main.py が同じオリジンから配信する
+
+    let currentTab = 'login';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
+      document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+      document.getElementById('error-msg').style.display = 'none';
+      document.getElementById('error-reg').style.display = 'none';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') currentTab === 'login' ? login() : register();
+    });
+
+    async function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!username || !password) { showError('error-msg', 'ユーザー名とパスワードを入力してください'); return; }
+      try {
+        const res  = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          sessionStorage.setItem('kanflow_user', data.username);
+          showToast('✅ ログイン成功！');
+          setTimeout(() => { window.location.href = 'kanban.html'; }, 500);
+        } else {
+          showError('error-msg', data.error || 'ログインに失敗しました');
+        }
+      } catch(e) {
+        showError('error-msg', 'サーバーに接続できません');
+      }
+    }
+
+    async function register() {
+      const username  = document.getElementById('reg-username').value.trim();
+      const password  = document.getElementById('reg-password').value;
+      const password2 = document.getElementById('reg-password2').value;
+      if (!username || !password) { showError('error-reg', 'すべての項目を入力してください'); return; }
+      if (password !== password2) { showError('error-reg', 'パスワードが一致しません'); return; }
+      try {
+        const res  = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('✅ 登録完了！ログインしてください');
+          switchTab('login');
+          document.getElementById('username').value = username;
+        } else {
+          showError('error-reg', data.error || '登録に失敗しました');
+        }
+      } catch(e) {
+        showError('error-reg', 'サーバーに接続できません');
+      }
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
+    }
+  </script>
+</body>
+</html>
